@@ -361,7 +361,7 @@ elif project_num == 2:
         ## pyspark ALS
         on_Collaborative_filtering = st.toggle(':orange[**Activate feature \"Collaborative filtering\"**]')
         if on_Collaborative_filtering:  # Cho phép chạy
-            #pyspark
+            # DO THỜI ĐIỂM LÀM VIỆC VỚI STREAMLIT SERVER DOWN LIÊN TỤC NÊN PHẢI VIẾT THÊM HÀM NÀY RETRY TRONG _initialize_spark
             from utils import _initialize_spark
             if 'spark' not in locals():
                 spark, sc = _initialize_spark()
