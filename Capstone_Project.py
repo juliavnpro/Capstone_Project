@@ -14,6 +14,8 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 sns.set_style("whitegrid", {'axes.grid' : False})
 import re
+from utils import _initialize_spark
+import sys
 ### Functions: Chỉ cho hiện những hình nằm trong phạm vi cấu hình fr - to
 def project2_show_range_img(directory, fr=1, to=24):
     # Use os.listdir to get all files in the directory
@@ -362,9 +364,7 @@ elif project_num == 2:
         on_Collaborative_filtering = st.toggle(':orange[**Activate feature \"Collaborative filtering\"**]')
         if on_Collaborative_filtering:  # Cho phép chạy
             # DO THỜI ĐIỂM LÀM VIỆC VỚI STREAMLIT SERVER DOWN LIÊN TỤC NÊN PHẢI VIẾT THÊM HÀM NÀY RETRY TRONG _initialize_spark
-            from utils import _initialize_spark
-            import sys
-            if 'spark' not in locals():
+            if 'spark' not in globals():
                 result = _initialize_spark()
                 if result is not None:
                     spark, sc = result
