@@ -441,6 +441,8 @@ elif project_num == 2:
             #     product_recs = st.session_state['product_recs']
             #     # Nối lại mã sản phẩm và hiển thị
             #     new_product_recs = product_recs.join(df_product_id_product_id_idx, on=['product_id_idx'], how='left')
+
+            #DO ĐƯA LÊN STREAMLIT CHẠY: THỬ GIẢI PHÁP CHUYỂN pyspark dataframe -> pandas dataframe
             def als_recommandations_pandas(top_user, show_top, filter_score):
                     # Chuyển đổi new_user_recs sang DataFrame pandas
                     new_user_recs_pd = new_user_recs.toPandas()
@@ -562,7 +564,7 @@ elif project_num == 2:
                 if customer_id != '':
                     st.session_state.customer_id = customer_id
                     t0_als_recommandations = datetime.now()
-                    als_recommandations_pandas(int(np.int64(customer_id)), int(np.int64(num_rows)), filter_score=0.0)
+                    als_recommandations_pandas(int(customer_id), int(num_rows), filter_score=0.0)
                     st.write('Total run time Collaborative filtering - Recommendation: \t\t',datetime.now() - t0_als_recommandations)
 
         on_Content_based_filtering = st.toggle(':blue[**Activate feature \"Content-based filtering\"**]')
