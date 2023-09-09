@@ -44,8 +44,9 @@ def _initialize_spark() -> SparkSession:
             # Get the application ID
             app_id = sc.applicationId
             print(f"Spark is running. Application ID: {app_id}")
+        return spark, sc
     except Exception as e:
         print(f"Error occurred: {e}")
         print("Retrying in 5 seconds...")
         sleep(5)
-    return spark, sc
+    
