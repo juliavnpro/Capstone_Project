@@ -575,7 +575,7 @@ elif project_num == 2:
                 if customer_id != '':
                     st.session_state.customer_id = customer_id
                     t0_als_recommandations = datetime.now()
-                    als_recommandations_2(int(customer_id), int(num_rows), filter_score=0.0)
+                    als_recommandations(int(customer_id), int(num_rows), filter_score=0.0)
                     st.write('Total run time Collaborative filtering - Recommendation: \t\t',datetime.now() - t0_als_recommandations)
 
         if on_Content_based_filtering:
