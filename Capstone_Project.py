@@ -402,16 +402,12 @@ elif project_num == 2:
                                         outputCol='customer_id_idx')
                 indexer1_model = indexer1.fit(data_indexed)
                 data_indexed = indexer1_model.transform(data_indexed)
-                # #BACKUP FOR STREAMLIT USE: SERVER KHÔNG CHẠY ĐƯỢC GHI FILE
-                # data_indexed.coalesce(1).write.option("header", "true").csv(f'Project_{project_num}/als_models/data_indexed')
-                # đọc file data_indexed gán cho data_indexed
-                # data_indexed = spark.read.option("header", "true").csv(f'Project_{project_num}/als_models/data_indexed.csv')
+                # Gán vào session_state để khi dùng kiểm tra có không phải đi làm lại các bước trên.
                 st.session_state['data_indexed'] = data_indexed
             else:
                 # Dữ liệu đã có sắn, chỉ việc lấy ra sử dụng
                 print("Dữ liệu dataframe data_indexed đã có sắn, chỉ việc lấy ra sử dụng")
                 data_indexed = st.session_state['data_indexed']
-            # data_indexed= spark.read.csv(f'Project_{project_num}/als_models/data_indexed.csv')
             # Nắn dữ liệu cho báo cáo
             df_customer_customer_idx = data_indexed.select('customer_id_idx', 'customer_id').distinct()
             df_product_id_product_id_idx = data_indexed.select('product_id_idx', 'product_id','product_name').distinct()
@@ -423,26 +419,28 @@ elif project_num == 2:
                 # Nối lại mã khách hàng và hiển thị
                 new_user_recs = user_recs.join(df_customer_customer_idx, on=['customer_id_idx'], how='left')
                 st.session_state['user_recs'] = user_recs
+                # Cập nhật lại để đảm bảo chỉ khi có thay đổi số dòng kết quả gợi ý mới vào đây để load và lại cập nhật giá trị.
+                tracking_num = num_rows
             else:
                 # Dữ liệu đã có sắn, chỉ việc lấy ra sử dụng
                 print("Dữ liệu dataframe user_recs đã có sắn, chỉ việc lấy ra sử dụng")
                 user_recs = st.session_state['user_recs']
                 # Nối lại mã khách hàng và hiển thị
                 new_user_recs = user_recs.join(df_customer_customer_idx, on=['customer_id_idx'], how='left')
-            if 'product_recs' not in st.session_state or tracking_num != num_rows:
-                # Gợi ý theo product_id
-                product_recs = model_t.recommendForAllItems(num_rows)
-                # Nối lại mã sản phẩm và hiển thị
-                new_product_recs = product_recs.join(df_product_id_product_id_idx, on=['product_id_idx'], how='left')
-                st.session_state['product_recs'] = product_recs
-                # Cập nhật lại để đảm bảo chỉ khi có thay đổi số dòng kết quả gợi ý mới vào đây để load và lại cập nhật giá trị.
-                tracking_num = num_rows
-            else:
-                # Dữ liệu đã có sắn, chỉ việc lấy ra sử dụng
-                print("Dữ liệu dataframe product_recs đã có sắn, chỉ việc lấy ra sử dụng")
-                product_recs = st.session_state['product_recs']
-                # Nối lại mã sản phẩm và hiển thị
-                new_product_recs = product_recs.join(df_product_id_product_id_idx, on=['product_id_idx'], how='left')
+
+            ## DO ĐƯA LÊN STREAMLIT CHẠY KHÔNG NỔI NÊN TẠM THỜI ĐÓNG LẠI PHẦN NÀY: GỢI Ý DỰA TRÊN MÃ SẢN PHẨM = ALS
+            # if 'product_recs' not in st.session_state or tracking_num != num_rows:
+            #     # Gợi ý theo product_id
+            #     product_recs = model_t.recommendForAllItems(num_rows)
+            #     # Nối lại mã sản phẩm và hiển thị
+            #     new_product_recs = product_recs.join(df_product_id_product_id_idx, on=['product_id_idx'], how='left')
+            #     st.session_state['product_recs'] = product_recs
+            # else:
+            #     # Dữ liệu đã có sắn, chỉ việc lấy ra sử dụng
+            #     print("Dữ liệu dataframe product_recs đã có sắn, chỉ việc lấy ra sử dụng")
+            #     product_recs = st.session_state['product_recs']
+            #     # Nối lại mã sản phẩm và hiển thị
+            #     new_product_recs = product_recs.join(df_product_id_product_id_idx, on=['product_id_idx'], how='left')
             def als_recommandations_pandas(top_user, show_top, filter_score):
                     # Chuyển đổi new_user_recs sang DataFrame pandas
                     new_user_recs_pd = new_user_recs.toPandas()
@@ -586,7 +584,7 @@ elif project_num == 2:
                     search_by_gensim = col1.checkbox(label='Search by Gensim',value=True)
                     search_by_cosine_similarity = col2.checkbox(label='Search by Cosine Similarity*',value=True)
                     search_by_als = col3.checkbox(label='Search by ALS', disabled=True)
-                    search_content = text_field('**Search content**', value='Thảm ')
+                    search_content = text_field('**Search content**', value='Da ')
 
                     t0_gensim_cosine_als = datetime.now()
                     # Create a search button
@@ -763,7 +761,7 @@ elif project_num == 2:
                                             st.write('Total Gensim run time : \t\t\t', datetime.now() - gensim_start_time)
                                             st.write('Search Results by Gensim')
                                             # st.dataframe(gensim_top_recommendations[['item_id','product_name','gensim_similarity_score']].style.applymap(lambda x: 'background-color: lightgreen; color: black'))
-                                            st.dataframe(gensim_top_recommendations[['item_id','product_name','gensim_similarity_score']].style.map(lambda x: 'background-color: lightgreen; color: black'))
+                                            st.dataframe(gensim_top_recommendations[['item_id','product_name','gensim_similarity_score']].style.applymap(lambda x: 'background-color: lightgreen; color: black'))
                                     if search_by_cosine_similarity:
                                         #1. Create
                                         STOP_WORD_FILE = 'vietnamese-stopwords.txt'
@@ -807,8 +805,7 @@ elif project_num == 2:
                                             cosin_top_recommendations  = cosin_recommendation(view_product_name, num_rows, 0.0)
                                             st.write('Total cosine_similarity run time : \t\t', datetime.now() - cosin_start_time)
                                             st.write('Search Results by Cosine Similarity')
-                                            # st.dataframe(cosin_top_recommendations[['item_id','product_name','gensim_similarity_score','cosin_similarities_score']].style.applymap(lambda x: 'background-color: lavender; color: black'))
-                                            st.dataframe(cosin_top_recommendations[['item_id','product_name','gensim_similarity_score','cosin_similarities_score']].style.map(lambda x: 'background-color: lavender; color: black'))
+                                            st.dataframe(cosin_top_recommendations[['item_id','product_name','gensim_similarity_score','cosin_similarities_score']].style.applymap(lambda x: 'background-color: lavender; color: black'))
                                     if search_by_als:
                                         st.write('Search Results by ALS')
                                         # st.write(df_ALS)
