@@ -361,7 +361,9 @@ elif project_num == 2:
             # Chuyển tiếp các tham số đầu vào văn bản
             return c2.text_input(label="", **input_params,label_visibility="hidden")
         ## pyspark ALS
-        on_Collaborative_filtering = st.toggle(':orange[**Activate feature \"Collaborative filtering\"**]')
+
+        on_Collaborative_filtering = st.toggle(':orange[**Activate feature \"Collaborative filtering\"**]',value= False)
+        on_Content_based_filtering = st.toggle(':blue[**Activate feature \"Content-based filtering\"**]',value= False)
         if on_Collaborative_filtering:  # Cho phép chạy
             # DO THỜI ĐIỂM LÀM VIỆC VỚI STREAMLIT SERVER DOWN LIÊN TỤC NÊN PHẢI VIẾT THÊM HÀM NÀY RETRY TRONG _initialize_spark
             if 'spark' not in globals():
@@ -450,7 +452,7 @@ elif project_num == 2:
             #     # Nối lại mã sản phẩm và hiển thị
             #     new_product_recs = product_recs.join(df_product_id_product_id_idx, on=['product_id_idx'], how='left')
 
-            #DO ĐƯA LÊN STREAMLIT CHẠY: THỬ GIẢI PHÁP CHUYỂN pyspark dataframe -> pandas dataframe
+            #DO ĐƯA LÊN STREAMLIT CHẠY: THỬ GIẢI PHÁP CHUYỂN pyspark dataframe -> pandas dataframe PHÁ SẢN HOÀN TOÀN TỐN BỘ NHỚ HƠN
             def als_recommandations_pandas(top_user, show_top, filter_score):
                     # Chuyển đổi new_user_recs sang DataFrame pandas
                     new_user_recs_pd = new_user_recs.toPandas()
@@ -487,9 +489,10 @@ elif project_num == 2:
                         st.markdown("Nothing to recommend to customers:", top_user)
 
             def als_recommandations(top_user, show_top, filter_score):
-                find_user_rec = new_user_recs.filter(new_user_recs['customer_id'] == top_user)
-                if find_user_rec.count() > 0:
-                    st.markdown("\n+ Recommendations for customers: ", top_user)
+                # find_user_rec = new_user_recs.filter(new_user_recs['customer_id'] == top_user)
+                find_user_rec = new_user_recs.filter(new_user_recs['customer_id'] == lit(top_user))
+                if find_user_rec.limit(1).collect():
+                    st.markdown("\n+ Recommendations for customer: ")
                     user = find_user_rec.first() 
 
                     # Convert list to DataFrame
@@ -507,15 +510,15 @@ elif project_num == 2:
                     report_filtered = report.filter(report.als_score >= filter_score)
 
                     # Join df_filtered with df_product_id_product_id_idx on product_id_idx
-                    report_filtered = report_filtered.join(df_product_id_product_id_idx, on=['product_id_idx'], how='left').select("customer_id", "product_id","product_name", "als_score").sort(desc("als_score"))
-
+                    # report_filtered = report_filtered.join(df_product_id_product_id_idx, on=['product_id_idx'], how='left').select("customer_id", "product_id","product_name", "als_score").sort(desc("als_score"))
+                    report_filtered = report_filtered.join(broadcast(df_product_id_product_id_idx), on=['product_id_idx'], how='left').select("customer_id", "product_id","product_name", "als_score").sort(desc("als_score"))
                     # Show the filtered report
                     report_filtered= report_filtered.toPandas()
                     st.dataframe(report_filtered.head(num_rows).style.apply(highlight_rows_even_odd, axis=1))
                     # report_filtered.show(show_top, truncate=False)
                     
                 else:
-                    st.markdown("Nothing to recommend to customers:", top_user)
+                    st.write("Nothing to recommend to customer: {top_user}")
 
             def als_recommandations_return_result(top_user, show_top, filter_score):
                 find_user_rec = new_user_recs.filter(new_user_recs['customer_id'] == top_user)
@@ -572,11 +575,11 @@ elif project_num == 2:
                 if customer_id != '':
                     st.session_state.customer_id = customer_id
                     t0_als_recommandations = datetime.now()
-                    als_recommandations(int(customer_id), int(num_rows), filter_score=0.0)
+                    als_recommandations_2(int(customer_id), int(num_rows), filter_score=0.0)
                     st.write('Total run time Collaborative filtering - Recommendation: \t\t',datetime.now() - t0_als_recommandations)
 
-        on_Content_based_filtering = st.toggle(':blue[**Activate feature \"Content-based filtering\"**]')
         if on_Content_based_filtering:
+            # ĐÓNG LẠI ĐỂ KHÔNG PHẢI GÁNH THÊM THỜI GIAN CHẠY LẠI => on_Collaborative_filtering
             import gensim
             from sklearn.feature_extraction.text import TfidfVectorizer
             from sklearn.metrics.pairwise import cosine_similarity
