@@ -8,12 +8,6 @@ from pyspark.sql import Row, SQLContext
 from time import sleep
 def _initialize_spark() -> SparkSession:
     try:
-        # Kiểm tra xem liệu SparkContext đã tồn tại hay chưa
-        if 'sc' not in globals():
-            sc = SparkContext.getOrCreate()
-        else:
-            sc = globals()['sc']
-
         # Kiểm tra xem liệu SparkSession đã tồn tại hay chưa
         if 'spark' not in globals():
             spark = SparkSession.builder.getOrCreate()

@@ -363,6 +363,7 @@ elif project_num == 2:
         if on_Collaborative_filtering:  # Cho phép chạy
             # DO THỜI ĐIỂM LÀM VIỆC VỚI STREAMLIT SERVER DOWN LIÊN TỤC NÊN PHẢI VIẾT THÊM HÀM NÀY RETRY TRONG _initialize_spark
             from utils import _initialize_spark
+            import sys
             if 'spark' not in locals():
                 result = _initialize_spark()
                 if result is not None:
