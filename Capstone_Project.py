@@ -490,6 +490,8 @@ elif project_num == 2:
 
             def als_recommandations(top_user, show_top, filter_score):
                 # find_user_rec = new_user_recs.filter(new_user_recs['customer_id'] == top_user)
+                # if find_user_rec.count() > 0:
+                ## Thay 2 dòng trên = 2 dòng dưới này cải thiện tốc độ giảm hơn 1/2 thời gian chạy
                 find_user_rec = new_user_recs.filter(new_user_recs['customer_id'] == lit(top_user))
                 if find_user_rec.limit(1).collect():
                     st.markdown("\n+ Recommendations for customer: ")
@@ -553,7 +555,7 @@ elif project_num == 2:
                 else:
                     st.markdown("+ Nothing to recommend to customers:", top_user)
                     return None
-            with st.expander('#### **Collaborative filtering**'):                
+            with st.expander('#### **Collaborative filtering**\n(thông thường các bạn feedback top 5 là 3 phút trên 1 kết quả tìm kiếm)'):                
                 # Kiểm tra xem st.session_state.customer_id có tồn tại hay không
                 if 'customer_id' not in st.session_state:
                     st.session_state.customer_id = '709310'
