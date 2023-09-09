@@ -555,7 +555,7 @@ elif project_num == 2:
                 else:
                     st.markdown("+ Nothing to recommend to customers:", top_user)
                     return None
-            with st.expander('#### **Collaborative filtering**\n(thông thường các bạn feedback top 5 là 3 phút trên 1 kết quả tìm kiếm)'):                
+            with st.expander('#### **Collaborative filtering**\n(Các bạn feedback thông thường lấy top 5 là  3 phút trên 1 kết quả tìm kiếm)'):                
                 # Kiểm tra xem st.session_state.customer_id có tồn tại hay không
                 if 'customer_id' not in st.session_state:
                     st.session_state.customer_id = '709310'
