@@ -364,7 +364,14 @@ elif project_num == 2:
             # DO THỜI ĐIỂM LÀM VIỆC VỚI STREAMLIT SERVER DOWN LIÊN TỤC NÊN PHẢI VIẾT THÊM HÀM NÀY RETRY TRONG _initialize_spark
             from utils import _initialize_spark
             if 'spark' not in locals():
-                spark, sc = _initialize_spark()
+                result = _initialize_spark()
+                if result is not None:
+                    spark, sc = result
+                else:
+                    # Handle the case where _initialize_spark() returns None
+                    # For example, you could print an error message and exit the program
+                    print("Error: _initialize_spark() returned None")
+                    sys.exit(1)
             from pyspark.sql.functions import *
             from pyspark.sql.types import *
             from pyspark.ml.feature import Binarizer, Bucketizer, OneHotEncoder, StringIndexer, VectorAssembler
